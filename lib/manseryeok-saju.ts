@@ -224,13 +224,14 @@ function getTimeStemBranch(year: number, month: number, day: number, hour: numbe
   
   // 19시 16분 처리를 위한 특별 로직
   // 실제로 19시는 술시 경계
+  let timeBranch = '자';
+  let timeBranchIndex = 0;
+  
   if (hour === 19) {
     // 19시 정각 이후는 술시
     timeBranch = '술';
     timeBranchIndex = EARTHLY_BRANCHES.indexOf('술' as any);
   } else {
-    let timeBranch = '자';
-    let timeBranchIndex = 0;
     
     for (let i = 0; i < timeBranches.length; i++) {
       const period = timeBranches[i];
