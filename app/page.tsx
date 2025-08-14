@@ -14,8 +14,8 @@ import {
   businessTypes,
   type SajuBasedFortune
 } from '@/lib/saju-fortune-generator';
-import { calculateSaju } from '@/lib/final-saju-calculator';
-import type { BusinessType } from '@/lib/final-saju-calculator';
+import { calculateSaju } from '@/lib/manseryeok-saju';
+import type { BusinessType } from '@/lib/manseryeok-saju';
 
 type FortuneMode = 'simple' | 'detailed';
 
