@@ -54,36 +54,9 @@ export interface SajuChart {
   day_master: string;
   birth_info: {
     solar_date: Date;
-    lunar_date?: string;
     time_period: string;
   };
 }
-
-// 업종 정보
-export interface BusinessType {
-  id: string;
-  name: string;
-  icon: string;
-}
-
-export const businessTypes: BusinessType[] = [
-  { id: 'restaurant', name: '음식점', icon: '🍜' },
-  { id: 'cafe', name: '카페', icon: '☕' },
-  { id: 'convenience', name: '편의점', icon: '🏪' },
-  { id: 'beauty', name: '미용실', icon: '💇' },
-  { id: 'mart', name: '마트', icon: '🛒' },
-  { id: 'clothing', name: '의류점', icon: '👕' },
-  { id: 'pharmacy', name: '약국', icon: '💊' },
-  { id: 'bookstore', name: '서점', icon: '📚' },
-];
-
-// 오행 (五行)
-export const FIVE_ELEMENTS = ['목', '화', '토', '금', '수'] as const;
-
-// 십성 (十星)
-export const TEN_GODS = [
-  '비견', '겁재', '식신', '상관', '편재', '정재', '편관', '정관', '편인', '정인'
-] as const;
 
 // 년주 계산 (입춘 기준)
 function getYearStemBranch(year: number, month: number, day: number): { stem: string; branch: string } {
@@ -330,123 +303,42 @@ export function calculateSaju(
   };
 }
 
-// 오행 상생상극 관계
-export const ELEMENT_RELATIONS = {
-  생: {
-    '목': '화', '화': '토', '토': '금', '금': '수', '수': '목'
-  },
-  극: {
-    '목': '토', '화': '금', '토': '수', '금': '목', '수': '화'  
-  }
-} as const;
-
-// 사주의 강약 판단
-export function analyzeSajuStrength(saju: SajuChart): {
-  day_master_strength: '강' | '약';
-  supporting_elements: string[];
-  opposing_elements: string[];
-  analysis: string;
-} {
-  const dayMasterElement = STEM_PROPERTIES[saju.day_master as keyof typeof STEM_PROPERTIES].element;
+// 검증 함수 (순수하게 테스트용)
+export function verifySaju() {
+  console.log('=== 순수 알고리즘 만세력 검증 ===\n');
   
-  // 계절별 오행 강약
-  const month = saju.birth_info.solar_date.getMonth() + 1;
-  let season = '봄';
-  if (month >= 6 && month <= 8) season = '여름';
-  else if (month >= 9 && month <= 11) season = '가을';  
-  else if (month >= 12 || month <= 2) season = '겨울';
-  else season = '봄';
-  
-  const seasonStrength = {
-    '봄': { '목': 3, '화': 2, '토': 1, '금': 0, '수': 1 },
-    '여름': { '목': 1, '화': 3, '토': 2, '금': 0, '수': 1 },
-    '가을': { '목': 0, '화': 1, '토': 1, '금': 3, '수': 2 },
-    '겨울': { '목': 2, '화': 0, '토': 1, '금': 1, '수': 3 }
-  };
-  
-  // 일간 강약 점수 계산
-  let strengthScore = seasonStrength[season as keyof typeof seasonStrength][dayMasterElement as keyof typeof seasonStrength['봄']] || 1;
-  
-  // 사주 내 같은 오행 개수로 강약 보정
-  const elements = [
-    saju.year.element_stem, saju.year.element_branch,
-    saju.month.element_stem, saju.month.element_branch,
-    saju.day.element_stem, saju.day.element_branch,
-    saju.time.element_stem, saju.time.element_branch
-  ];
-  
-  const elementCount = elements.filter(e => e === dayMasterElement).length;
-  strengthScore += elementCount * 0.5;
-  
-  const isStrong = strengthScore >= 4;
-  
-  // 용희신 판단
-  let supporting: string[] = [];
-  let opposing: string[] = [];
-  
-  if (isStrong) {
-    // 일간이 강한 경우: 설기(洩氣)하는 오행이 용신
-    supporting = [
-      ELEMENT_RELATIONS.생[dayMasterElement as keyof typeof ELEMENT_RELATIONS.생],
-      ELEMENT_RELATIONS.극[dayMasterElement as keyof typeof ELEMENT_RELATIONS.극]
-    ];
-    opposing = [dayMasterElement];
-  } else {
-    // 일간이 약한 경우: 생조(生助)하는 오행이 용신
-    // 나를 생하는 오행 찾기
-    let generatingElement = '';
-    for (const [key, value] of Object.entries(ELEMENT_RELATIONS.생)) {
-      if (value === dayMasterElement) {
-        generatingElement = key;
-        break;
-      }
-    }
-    supporting = [dayMasterElement, generatingElement].filter(e => e);
-    opposing = [ELEMENT_RELATIONS.극[dayMasterElement as keyof typeof ELEMENT_RELATIONS.극]];
-  }
-  
-  return {
-    day_master_strength: isStrong ? '강' : '약',
-    supporting_elements: supporting,
-    opposing_elements: opposing,
-    analysis: isStrong ? 
-      `일간(${saju.day_master})이 강한 편이므로 ${supporting.join(', ')} 오행이 용신입니다.` : 
-      `일간(${saju.day_master})이 약한 편이므로 ${supporting.join(', ')} 오행이 용신입니다.`
-  };
-}
-
-// 테스트 함수
-export function testSaju() {
-  console.log('=== 정확한 만세력 사주 계산 테스트 ===\n');
-  
-  const testCases = [
+  // 검증용 정답 데이터 (알고리즘과 분리)
+  const validationData = [
     {
       date: '1998년 9월 4일 19시 16분',
       year: 1998, month: 9, day: 4, hour: 19, minute: 16,
-      expected: '무인년 경신월 갑인일 계유시'
+      correct: '무인년 경신월 갑인일 계유시'
     },
     {
       date: '1999년 1월 3일 8시 20분',
       year: 1999, month: 1, day: 3, hour: 8, minute: 20,
-      expected: '무인년 갑자월 을묘일 경진시'
+      correct: '무인년 갑자월 을묘일 경진시'
     }
   ];
   
-  let allPassed = true;
+  console.log('알고리즘으로 계산한 값과 실제 만세력 비교:\n');
   
-  testCases.forEach((test, index) => {
+  let allCorrect = true;
+  
+  validationData.forEach((test, index) => {
     const result = calculateSaju(test.year, test.month, test.day, test.hour, test.minute);
-    const actual = `${result.year.stem}${result.year.branch}년 ${result.month.stem}${result.month.branch}월 ${result.day.stem}${result.day.branch}일 ${result.time.stem}${result.time.branch}시`;
-    const passed = actual === test.expected;
+    const calculated = `${result.year.stem}${result.year.branch}년 ${result.month.stem}${result.month.branch}월 ${result.day.stem}${result.day.branch}일 ${result.time.stem}${result.time.branch}시`;
+    const isCorrect = calculated === test.correct;
     
-    console.log(`테스트 ${index + 1}: ${test.date}`);
-    console.log(`  예상: ${test.expected}`);
-    console.log(`  결과: ${actual}`);
-    console.log(`  상태: ${passed ? '✅ 성공' : '❌ 실패'}`);
+    console.log(`검증 ${index + 1}: ${test.date}`);
+    console.log(`  알고리즘 계산: ${calculated}`);
+    console.log(`  실제 만세력값: ${test.correct}`);
+    console.log(`  검증 결과: ${isCorrect ? '✅ 일치' : '❌ 불일치'}`);
+    console.log('');
     
-    if (!passed) allPassed = false;
+    if (!isCorrect) allCorrect = false;
   });
   
-  console.log(`\n전체 테스트 결과: ${allPassed ? '✅ 모두 성공!' : '❌ 일부 실패'}`);
-  return allPassed;
+  console.log(`최종 검증 결과: ${allCorrect ? '✅ 알고리즘 정확!' : '❌ 알고리즘 수정 필요'}`);
+  return allCorrect;
 }
