@@ -3,11 +3,6 @@
   "outputDirectory": ".next",
   "framework": "nextjs",
   "regions": ["icn1"],
-  "functions": {
-    "app/**/*.js": {
-      "runtime": "nodejs18.x"
-    }
-  },
   "headers": [
     {
       "source": "/(.*)",
