@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>사주 계산 직접 테스트</title>
+</head>
+<body>
+    <h1>1999년 1월 3일 8시 20분 사주 계산</h1>
+    <div id="result"></div>
+    
+    <script type="module">
+        // manseryeok-saju.ts의 calculateSaju 함수를 직접 실행
+        import { calculateSaju } from './lib/manseryeok-saju.js';
+        
+        const result = calculateSaju(1999, 1, 3, 8, 20);
+        
+        const html = `
+            <p>년주: ${result.year.stem}${result.year.branch}</p>
+            <p>월주: ${result.month.stem}${result.month.branch}</p>
+            <p>일주: ${result.day.stem}${result.day.branch}</p>
+            <p>시주: ${result.time.stem}${result.time.branch}</p>
+            <hr>
+            <p>정답: 무인년 갑자월 을묘일 경진시</p>
+        `;
+        
+        document.getElementById('result').innerHTML = html;
+        
+        console.log('전체 결과:', result);
+    </script>
+</body>
+</html>
